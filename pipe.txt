@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+
+int main()
+{
+    pid_t pid;
+    int num, recNum;
+    int fd[2];
+
+    // Pipe Create
+    if (pipe(fd) < 0)
+    {
+        perror("Pipe Error");
+    }
+
+    pid = fork();
+    // Parent Process
+    if (pid > 0)
+    {
+        close(fd[0]);
+        printf("Enter Number : ");
+        scanf("%d", &num);
+        write(fd[1], &num, sizeof(num));
+        close(fd[1]);
+    }
+    // Child Process
+    else if (pid == 0)
+    {
+        close(fd[1]);
+        read(fd[0], &recNum, sizeof(recNum));
+        close(fd[0]);
+
+        printf("Recieved Num : %d", recNum);
+    }
+}
